@@ -93,7 +93,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<VolunteersLog> VolunteersLogs { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseNpgsql("Name=DefaultConnection");
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseNpgsql("Host=localhost;Database=HandsForPeaceMaking;Username=postgres;Password=abc");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -122,6 +123,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.Project).WithMany(p => p.Activities)
                 .HasForeignKey(d => d.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Activities_ProjectId_fkey");
         });
 
@@ -149,6 +151,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.Bank).WithMany(p => p.BankBooks)
                 .HasForeignKey(d => d.BankId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Bank_Book_BankId_fkey");
         });
 
@@ -178,6 +181,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.Bank).WithMany(p => p.BankSummaries)
                 .HasForeignKey(d => d.BankId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Bank_Summary_BankId_fkey");
         });
 
@@ -234,6 +238,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.Project).WithMany(p => p.Beneficiaries)
                 .HasForeignKey(d => d.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Beneficiaries_ProjectId_fkey");
         });
 
@@ -245,9 +250,10 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.Address).HasMaxLength(255);
             entity.Property(e => e.Email).HasMaxLength(255);
+            entity.Property(e => e.FirstName).HasMaxLength(50);
             entity.Property(e => e.Gender).HasMaxLength(10);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.LastName).HasMaxLength(50);
             entity.Property(e => e.PhoneNumber).HasMaxLength(20);
         });
 
@@ -305,6 +311,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.Bank).WithMany(p => p.FolderBanks)
                 .HasForeignKey(d => d.BankId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Folder_Bank_BankId_fkey");
         });
 
@@ -358,6 +365,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.User).WithMany(p => p.Privileges)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Privileges_UserId_fkey");
         });
 
@@ -412,6 +420,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.Project).WithMany(p => p.Reports)
                 .HasForeignKey(d => d.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Reports_ProjectId_fkey");
         });
 
@@ -544,11 +553,14 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("Users", "Users");
 
+            entity.HasIndex(e => e.UserName, "UQ_UserName").IsUnique();
+
             entity.Property(e => e.Email).HasMaxLength(255);
+            entity.Property(e => e.FirstName).HasMaxLength(50);
             entity.Property(e => e.Gender).HasMaxLength(10);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.JobPosition).HasMaxLength(255);
-            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.LastName).HasMaxLength(50);
             entity.Property(e => e.Password).HasMaxLength(255);
             entity.Property(e => e.PhoneNumber).HasMaxLength(20);
             entity.Property(e => e.UserName).HasMaxLength(30);
@@ -582,6 +594,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.Project).WithMany(p => p.Volunteers)
                 .HasForeignKey(d => d.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Volunteers_ProjectId_fkey");
         });
 
@@ -609,10 +622,12 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.Activity).WithMany(p => p.VolunteersActivities)
                 .HasForeignKey(d => d.ActivityId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Volunteers_Activities_ActivityId_fkey");
 
             entity.HasOne(d => d.Volunteer).WithMany(p => p.VolunteersActivities)
                 .HasForeignKey(d => d.VolunteerId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Volunteers_Activities_VolunteerId_fkey");
         });
 

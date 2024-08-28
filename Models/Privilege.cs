@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace HandsForPeaceMakingAPI.Models;
 
@@ -18,6 +17,7 @@ public partial class Privilege
 
     public bool? IsActive { get; set; }
 
-    [JsonIgnore]
+    public bool UsersManager { get; set; }
+
     public virtual User? User { get; set; }
 }

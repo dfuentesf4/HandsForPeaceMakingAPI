@@ -133,7 +133,8 @@ namespace HandsForPeaceMakingAPI.Controllers
                 }
 
                 // Actualizar los campos permitidos
-                existingUser.Name = updatedUser.Name;
+                existingUser.FirstName = updatedUser.FirstName;
+                existingUser.LastName = updatedUser.LastName;
                 existingUser.Email = updatedUser.Email;
                 existingUser.PhoneNumber = updatedUser.PhoneNumber;
                 existingUser.JobPosition = updatedUser.JobPosition;
@@ -219,7 +220,8 @@ namespace HandsForPeaceMakingAPI.Controllers
                 {
                     Id = user.Id,
                     UserName = user.UserName,
-                    Name = user.Name
+                    FirstName = user.FirstName,
+                    LastName = user.LastName
                 };
 
                 string responseJson = JsonSerializer.Serialize(response);
