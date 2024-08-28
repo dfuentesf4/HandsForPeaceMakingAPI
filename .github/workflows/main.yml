@@ -30,7 +30,7 @@ jobs:
         host: ${{ secrets.SERVER_HOST }}
         username: ubuntu
         key: ${{ secrets.SERVER_SSH_KEY }}
-        source: ./publish/
+        source: ./publish/*
         target: /var/www/HFPMApi/  # Ruta en tu servidor donde están los archivos
 
     - name: Restart the service
