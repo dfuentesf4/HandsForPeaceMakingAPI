@@ -16,22 +16,35 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '8.0.x'  # O la versión que estés utilizando
+        dotnet-version: '8.0.x'  # Cambia según la versión que utilices
 
     - name: Restore dependencies
       run: dotnet restore
 
     - name: Build the project
-      run: dotnet publish HandsForPeaceMakingAPI.csproj -c Release -o ./publish --no-restore
+      run: dotnet publish -c Release -o ./publish --no-restore
 
-    - name: Copy files via SSH
+    - name: Compress the content of the publish folder
+      run: tar -czf publish.tar.gz -C publish .  # Comprime solo el contenido de la carpeta publish
+
+    - name: Copy the compressed file via SSH
       uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ubuntu
         key: ${{ secrets.SERVER_SSH_KEY }}
-        source: ./publish/**
-        target: /var/www/HFPMApi/  # Ruta en tu servidor donde están los archivos
+        source: ./publish.tar.gz  # Copia el archivo comprimido
+        target: /var/www/HFPMApi/  # Ruta donde se va a copiar el archivo comprimido
+
+    - name: Extract files on the server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ubuntu
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          tar -xzf /var/www/HFPMApi/publish.tar.gz -C /var/www/HFPMApi/  # Descomprime los archivos en el destino
+          rm /var/www/HFPMApi/publish.tar.gz  # Elimina el archivo comprimido después de extraer
 
     - name: Restart the service
       uses: appleboy/ssh-action@master
