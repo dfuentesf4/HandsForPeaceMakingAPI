@@ -1,0 +1,6 @@
+@HandsForPeaceMakingAPI_HostAddress = http://localhost:5267
+
+GET {{HandsForPeaceMakingAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
