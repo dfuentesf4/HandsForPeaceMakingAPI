@@ -172,7 +172,6 @@ namespace HandsForPeaceMakingAPI.Controllers
 
         private bool BeneficiaryExists(int id)
         {
-            bool var;
             return _context.Beneficiaries.Any(e => e.Id == id);
         }
     }
