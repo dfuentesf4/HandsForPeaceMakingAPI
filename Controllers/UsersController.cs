@@ -139,7 +139,7 @@ namespace HandsForPeaceMakingAPI.Controllers
                 existingUser.JobPosition = updatedUser.JobPosition;
                 existingUser.BirthDate = updatedUser.BirthDate;
                 existingUser.Gender = updatedUser.Gender;
-                existingUser.IsActive = updatedUser.IsActive;
+                existingUser.IsActive = updatedUser.IsActive; 
 
                 // Guardar cambios
                 await _context.SaveChangesAsync();
