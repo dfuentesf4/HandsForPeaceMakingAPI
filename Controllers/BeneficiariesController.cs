@@ -26,14 +26,24 @@ namespace HandsForPeaceMakingAPI.Controllers
             {
                 var beneficiaries = await _context.Beneficiaries
                                                     .Include(b => b.Project)
+                                                    .Select(b => new
+                                                        {
+                                                            b.Id,
+                                                            b.Name,
+                                                            b.Description,
+                                                            b.IsActive,
+                                                            b.ProjectId,
+                                                            Project = b.Project == null ? null : new
+                                                        {
+                                                            b.Project.Id,
+                                                            b.Project.Name,
+                                                            b.Project.Description
+                                                        }
+                                                    })
                                                     .ToListAsync();
 
                 // Convertimos la lista de beneficiaries a JSON y luego la encriptamos
-                string beneficiariesJson = JsonSerializer.Serialize(beneficiaries, new JsonSerializerOptions
-                {
-                    ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve, // Maneja referencias cíclicas
-                    WriteIndented = true // Formato de salida legible
-                });
+                string beneficiariesJson = JsonSerializer.Serialize(beneficiaries);
                 string encryptedBeneficiaries = EncryptionHelper.Encrypt(beneficiariesJson);
 
                 return Ok(new EncryptedResponse { EncryptedData = encryptedBeneficiaries });
