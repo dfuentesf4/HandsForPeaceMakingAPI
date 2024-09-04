@@ -24,7 +24,9 @@ namespace HandsForPeaceMakingAPI.Controllers
         {
             try
             {
-                var beneficiaries = await _context.Beneficiaries.ToListAsync();
+                var beneficiaries = await _context.Beneficiaries
+                                                    .Include(b => b.Project)
+                                                    .ToListAsync();
 
                 // Convertimos la lista de beneficiaries a JSON y luego la encriptamos
                 string beneficiariesJson = JsonSerializer.Serialize(beneficiaries);
