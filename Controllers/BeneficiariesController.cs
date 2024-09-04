@@ -29,7 +29,11 @@ namespace HandsForPeaceMakingAPI.Controllers
                                                     .ToListAsync();
 
                 // Convertimos la lista de beneficiaries a JSON y luego la encriptamos
-                string beneficiariesJson = JsonSerializer.Serialize(beneficiaries);
+                string beneficiariesJson = JsonSerializer.Serialize(beneficiaries, new JsonSerializerOptions
+                {
+                    ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve, // Maneja referencias cíclicas
+                    WriteIndented = true // Formato de salida legible
+                });
                 string encryptedBeneficiaries = EncryptionHelper.Encrypt(beneficiariesJson);
 
                 return Ok(new EncryptedResponse { EncryptedData = encryptedBeneficiaries });
