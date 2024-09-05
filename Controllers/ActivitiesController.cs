@@ -24,7 +24,25 @@ namespace HandsForPeaceMakingAPI.Controllers
         {
             try
             {
-                var activities = await _context.Activities.ToListAsync();
+                var activities = await _context.Activities
+                                                .Include(a => a.Project)
+                                                .Select(a => new 
+                                                {
+                                                    a.Id,
+                                                    a.Name,
+                                                    a.Description,
+                                                    a.StartDate,
+                                                    a.EndDate,
+                                                    a.IsActive,
+                                                    a.ProjectId,
+                                                    Project = a.Project == null ? null : new
+                                                    {
+                                                        a.Project.Id,
+                                                        a.Project.Name,
+                                                        a.Project.Description
+                                                    }
+                                                })
+                                                .ToListAsync();
 
                 // Convertimos la lista de activities a JSON y luego la encriptamos
                 string activitiesJson = JsonSerializer.Serialize(activities);
