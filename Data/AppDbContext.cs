@@ -582,9 +582,10 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("Volunteers", "Projects");
 
-            entity.Property(e => e.FullName).HasMaxLength(255);
+            entity.Property(e => e.FirstName).HasMaxLength(255);
             entity.Property(e => e.Gender).HasMaxLength(10);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.LastName).HasMaxLength(255);
             entity.Property(e => e.PhoneNumber).HasMaxLength(15);
             entity.Property(e => e.Role).HasMaxLength(100);
 
