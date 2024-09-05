@@ -29,7 +29,8 @@ namespace HandsForPeaceMakingAPI.Controllers
                                             .Select(v => new
                                             {
                                                 v.Id,
-                                                v.FullName,
+                                                v.FirstName,
+                                                v.LastName,
                                                 v.Gender,
                                                 v.IsActive,
                                                 v.PhoneNumber,
