@@ -25,7 +25,23 @@ namespace HandsForPeaceMakingAPI.Controllers
             try
             {
                 var bankSummaries = await _context.BankSummaries
-                    .Include(bs => bs.Bank) // Incluir la entidad relacionada Bank
+                    .Include(bs => bs.Bank)
+                    .Select(b => new BankSummary
+                    {
+                        Id = b.Id,
+                        Year = b.Year,
+                        Month = b.Month,
+                        DollarExchange = b.DollarExchange,
+                        Amount = b.Amount,
+                        BankId = b.BankId,
+                        IsActive = b.IsActive,
+                        Bank = new Bank
+                        {
+                            Id = b.Bank.Id,
+                            Name = b.Bank.Name,
+                            IsActive = b.Bank.IsActive
+                        }
+                    })
                     .ToListAsync();
 
                 // Convertimos la lista de bankSummaries a JSON y luego la encriptamos
