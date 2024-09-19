@@ -25,7 +25,24 @@ namespace HandsForPeaceMakingAPI.Controllers
             try
             {
                 var folderBanks = await _context.FolderBanks
-                    .Include(fb => fb.Bank) // Incluir la entidad relacionada Bank
+                    .Include(fb => fb.Bank)
+                    .Select(v => new
+                    {
+                        v.Id,
+                        v.Year,
+                        v.Month,
+                        v.DollarExchange,
+                        v.Amount,
+                        v.BankId,
+                        v.TransactionId,
+                        v.Folder,
+                        v.IsActive,
+                        Bank = v.Bank == null ? null : new
+                        {
+                            v.Bank.Id,
+                            v.Bank.Name
+                        }
+                    })
                     .ToListAsync();
 
                 // Convertimos la lista de folderBanks a JSON y luego la encriptamos
@@ -85,6 +102,7 @@ namespace HandsForPeaceMakingAPI.Controllers
                 {
                     return BadRequest("Invalid data");
                 }
+                folderBank.Bank = null;
 
                 _context.FolderBanks.Add(folderBank);
                 await _context.SaveChangesAsync();
