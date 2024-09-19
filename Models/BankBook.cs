@@ -7,8 +7,6 @@ public partial class BankBook
 {
     public int Id { get; set; }
 
-    public int? Date { get; set; }
-
     public int? BankId { get; set; }
 
     public decimal? DollarExchange { get; set; }
@@ -26,6 +24,8 @@ public partial class BankBook
     public string? Description { get; set; }
 
     public bool? IsActive { get; set; }
+
+    public DateOnly? Date { get; set; }
 
     public virtual Bank? Bank { get; set; }
 }
