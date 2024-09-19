@@ -25,7 +25,28 @@ namespace HandsForPeaceMakingAPI.Controllers
             try
             {
                 var bankBooks = await _context.BankBooks
-                    .Include(bb => bb.Bank) // Incluir la entidad relacionada Bank
+                    .Include(bb => bb.Bank)
+                    .Select(b => new BankBook
+                    {
+                        Id = b.Id,
+                        BankId = b.BankId,
+                        DollarExchange = b.DollarExchange,
+                        Amount = b.Amount,
+                        PayrollNumber = b.PayrollNumber,
+                        Beneficiarie = b.Beneficiarie,
+                        Expenses = b.Expenses,
+                        Justification = b.Justification,
+                        Description = b.Description,
+                        IsActive = b.IsActive,
+                        Date = b.Date,
+                        Bank = new Bank
+                        {
+                            Id = b.Bank.Id,
+                            Name = b.Bank.Name,
+                            IsActive = b.Bank.IsActive
+                        }
+                    
+                    })
                     .ToListAsync();
 
                 // Convertimos la lista de bankBooks a JSON y luego la encriptamos
@@ -86,6 +107,7 @@ namespace HandsForPeaceMakingAPI.Controllers
                     return BadRequest("Invalid data");
                 }
 
+                bankBook.Bank = null; // Para evitar que se cree un nuevo banco
                 _context.BankBooks.Add(bankBook);
                 await _context.SaveChangesAsync();
 
