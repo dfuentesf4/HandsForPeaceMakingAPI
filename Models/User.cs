@@ -27,5 +27,7 @@ public partial class User
 
     public string LastName { get; set; } = null!;
 
+    public virtual ICollection<PasswordResetToken> PasswordResetTokens { get; set; } = new List<PasswordResetToken>();
+
     public virtual ICollection<Privilege> Privileges { get; set; } = new List<Privilege>();
 }

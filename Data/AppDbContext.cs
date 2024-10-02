@@ -48,6 +48,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<FolderBankLog> FolderBankLogs { get; set; }
 
+    public virtual DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+
     public virtual DbSet<PettyCashSummary> PettyCashSummaries { get; set; }
 
     public virtual DbSet<PettyCashSummaryLog> PettyCashSummaryLogs { get; set; }
@@ -323,6 +325,23 @@ public partial class AppDbContext : DbContext
                 .HasColumnType("timestamp without time zone");
             entity.Property(e => e.OperationType).HasMaxLength(10);
             entity.Property(e => e.PerformedBy).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<PasswordResetToken>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("password_reset_tokens_pkey");
+
+            entity.ToTable("password_reset_tokens", "Users");
+
+            entity.Property(e => e.ExpiryDate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("Expiry_date");
+            entity.Property(e => e.Token).HasMaxLength(255);
+            entity.Property(e => e.UserId).HasColumnName("User_id");
+
+            entity.HasOne(d => d.User).WithMany(p => p.PasswordResetTokens)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("fk_user");
         });
 
         modelBuilder.Entity<PettyCashSummary>(entity =>

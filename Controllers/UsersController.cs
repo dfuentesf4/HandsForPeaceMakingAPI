@@ -1,5 +1,6 @@
 ﻿using HandsForPeaceMakingAPI.Data;
 using HandsForPeaceMakingAPI.Models;
+using HandsForPeaceMakingAPI.Services.Email;
 using HandsForPeaceMakingAPI.Services.EncryptionServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
@@ -17,10 +18,12 @@ namespace HandsForPeaceMakingAPI.Controllers
     public class UsersController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private EmailService EmailService;
 
-        public UsersController(AppDbContext context)
+        public UsersController(AppDbContext context, EmailService emailService)
         {
             _context = context;
+            EmailService = emailService;
         }
 
         [HttpPost("Get")]
@@ -214,8 +217,7 @@ namespace HandsForPeaceMakingAPI.Controllers
                     return Unauthorized("Invalid username or password");
                 }
 
-                // Aquí puedes generar un token JWT si lo deseas o devolver una respuesta exitosa
-                // Ejemplo sin JWT, solo como respuesta exitosa:
+                // Respuesta
                 var response = new User
                 {
                     Id = user.Id,
@@ -235,6 +237,54 @@ namespace HandsForPeaceMakingAPI.Controllers
             catch (Exception ex)
             {
                 return BadRequest("Error decrypting or processing login: " + ex.Message);
+            }
+        }
+
+        [HttpPost("RequestPasswordReset")]
+        public async Task<IActionResult> RequestPasswordReset([FromBody] EncryptedRequest encryptedRequest)
+        {
+            try
+            {
+                // Desencriptar la solicitud
+                string decryptedData = EncryptionHelper.Decrypt(encryptedRequest.EncryptedData);
+                
+
+                if (decryptedData == null)
+                {
+                    return BadRequest("Usuario inválido.");
+                }
+
+                // Buscar al usuario por su correo
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == decryptedData);
+                if (user == null)
+                {
+                    return NotFound("Usuario no encontrado.");
+                }
+
+                // Generar un token único
+                var token = Guid.NewGuid().ToString();
+
+                // Crear el token de restablecimiento con fecha de expiración de 1 hora
+                var passwordResetToken = new PasswordResetToken
+                {
+                    UserId = user.Id,
+                    Token = token,
+                    ExpiryDate = DateTime.UtcNow.AddHours(1)
+                };
+
+                // Guardar el token en la base de datos
+                _context.PasswordResetTokens.Add(passwordResetToken);
+                await _context.SaveChangesAsync();
+
+                // Enviar correo al usuario con el token
+                var names = $"{user.FirstName} {user.LastName}";
+                await EmailService.EnviarCorreo(passwordResetToken.Token, user.Email, names, user.UserName);
+
+                return Ok("Correo de restablecimiento enviado.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Error al procesar la solicitud: " + ex.Message);
             }
         }
 
