@@ -333,9 +333,7 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("password_reset_tokens", "Users");
 
-            entity.Property(e => e.ExpiryDate)
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("Expiry_date");
+            entity.Property(e => e.ExpiryDate).HasColumnName("Expiry_date");
             entity.Property(e => e.Token).HasMaxLength(255);
             entity.Property(e => e.UserId).HasColumnName("User_id");
 
