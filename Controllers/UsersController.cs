@@ -2,8 +2,8 @@
 using HandsForPeaceMakingAPI.Models;
 using HandsForPeaceMakingAPI.Services.Email;
 using HandsForPeaceMakingAPI.Services.EncryptionServices;
+using HandsForPeaceMakingAPI.Services.ResetPassword;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -281,6 +281,64 @@ namespace HandsForPeaceMakingAPI.Controllers
                 await EmailService.EnviarCorreo(passwordResetToken.Token, user.Email, names, user.UserName);
 
                 return Ok("Correo de restablecimiento enviado.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Error al procesar la solicitud: " + ex.Message);
+            }
+        }
+
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPassword([FromBody] EncryptedRequest encryptedRequest)
+        {
+            try
+            {
+                // Desencriptar la solicitud
+                string decryptedData = EncryptionHelper.Decrypt(encryptedRequest.EncryptedData);
+                var resetPasswordRequest = JsonSerializer.Deserialize<ResetPasswordRequest>(decryptedData);
+
+                if (resetPasswordRequest == null ||
+                    string.IsNullOrEmpty(resetPasswordRequest.UserName) ||
+                    string.IsNullOrEmpty(resetPasswordRequest.NewPassword) ||
+                    string.IsNullOrEmpty(resetPasswordRequest.Token))
+                {
+                    return BadRequest("Datos inválidos para restablecer la contraseña.");
+                }
+
+                // Buscar al usuario por su nombre de usuario
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == resetPasswordRequest.UserName);
+                if (user == null)
+                {
+                    return NotFound("Usuario no encontrado.");
+                }
+
+                // Buscar el token en la base de datos
+                var passwordResetToken = await _context.PasswordResetTokens
+                    .FirstOrDefaultAsync(t => t.Token == resetPasswordRequest.Token && t.UserId == user.Id);
+
+                if (passwordResetToken == null)
+                {
+                    return NotFound("Token de restablecimiento no válido.");
+                }
+
+                // Verificar si el token ha expirado
+                if (passwordResetToken.ExpiryDate < DateTime.UtcNow)
+                {
+                    return BadRequest("El token de restablecimiento ha expirado.");
+                }
+
+                // Actualizar la contraseña del usuario
+                user.Password = BCrypt.Net.BCrypt.HashPassword(resetPasswordRequest.NewPassword);
+
+                // Eliminar el token de restablecimiento para que no pueda ser reutilizado
+                _context.PasswordResetTokens.Remove(passwordResetToken);
+
+                // Guardar cambios en la base de datos
+                await _context.SaveChangesAsync();
+
+                await EmailService.ConfirmarCambioContraseña(user.UserName, user.Email, $"{user.FirstName} {user.LastName}");
+
+                return Ok("La contraseña ha sido restablecida con éxito.");
             }
             catch (Exception ex)
             {
