@@ -46,16 +46,16 @@ namespace HandsForPeaceMakingAPI.Controllers
                         Gender = u.Gender,
                         IsActive = u.IsActive,
 
-                        Privilege = new
+                        priviliges = u.Privileges.Select(p => new
                         {
-                            Id = u.Privileges.FirstOrDefault().Id,
-                            UserId = u.Privileges.FirstOrDefault().UserId,
-                            ProjectManager = u.Privileges.FirstOrDefault().ProjectManager,
-                            DonorManager = u.Privileges.FirstOrDefault().DonorManager,
-                            AccountingManager = u.Privileges.FirstOrDefault().AccountingManager,
-                            IsActive = u.Privileges.FirstOrDefault().IsActive,
-                            UsersManager = u.Privileges.FirstOrDefault().UsersManager
-                        }
+                            Id = p.Id,
+                            UserId = p.UserId,
+                            ProjectManager = p.ProjectManager,
+                            DonorManager = p.DonorManager,
+                            AccountingManager = p.AccountingManager,
+                            IsActive = p.IsActive,
+                            UsersManager = p.UsersManager
+                        })
                     })
                     .ToListAsync();
 
