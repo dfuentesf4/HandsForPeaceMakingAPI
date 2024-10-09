@@ -46,7 +46,7 @@ namespace HandsForPeaceMakingAPI.Controllers
                         Gender = u.Gender,
                         IsActive = u.IsActive,
 
-                        priviliges = u.Privileges.Select(p => new
+                        Priviliges = u.Privileges.Select(p => new
                         {
                             Id = p.Id,
                             UserId = p.UserId,
