@@ -229,7 +229,9 @@ namespace HandsForPeaceMakingAPI.Controllers
                 }
 
                 // Buscar al usuario por su UserName
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userRequest.UserName);
+                var user = await _context.Users
+                    .Include(u => u.Privileges)
+                    .FirstOrDefaultAsync(u => u.UserName == userRequest.UserName);
 
                 if (user == null)
                 {
@@ -249,7 +251,17 @@ namespace HandsForPeaceMakingAPI.Controllers
                     Id = user.Id,
                     UserName = user.UserName,
                     FirstName = user.FirstName,
-                    LastName = user.LastName
+                    LastName = user.LastName,
+                    Privileges = user.Privileges.Select(p => new Privilege
+                    {
+                        Id = p.Id,
+                        UserId = p.UserId,
+                        ProjectManager = p.ProjectManager,
+                        DonorManager = p.DonorManager,
+                        AccountingManager = p.AccountingManager,
+                        IsActive = p.IsActive,
+                        UsersManager = p.UsersManager
+                    }).ToList()
                 };
 
                 string responseJson = JsonSerializer.Serialize(response);
