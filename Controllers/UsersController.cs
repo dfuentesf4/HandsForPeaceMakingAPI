@@ -33,6 +33,30 @@ namespace HandsForPeaceMakingAPI.Controllers
             {
                 var users = await _context.Users
                     .Include(u => u.Privileges)
+                    .Select(u => new User
+                    {
+                        Id = u.Id,
+                        UserName = u.UserName,
+                        FirstName = u.FirstName,
+                        LastName = u.LastName,
+                        Email = u.Email,
+                        PhoneNumber = u.PhoneNumber,
+                        JobPosition = u.JobPosition,
+                        BirthDate = u.BirthDate,
+                        Gender = u.Gender,
+                        IsActive = u.IsActive,
+
+                        Privileges = u.Privileges.Select(p => new Privilege
+                        {
+                            Id = p.Id,
+                            UserId = p.UserId,
+                            ProjectManager = p.ProjectManager,
+                            DonorManager = p.DonorManager,
+                            AccountingManager = p.AccountingManager,
+                            IsActive = p.IsActive,
+                            UsersManager = p.UsersManager
+                        }).ToList()
+                    })
                     .ToListAsync();
 
                 // Convertimos la lista de usuarios a JSON y luego la encriptamos
